@@ -43,13 +43,21 @@ and also include needed jar libraries in the CLASSPATH.
 
 ## References
 [1]: Wishart, D. S., Knox, C., Guo, A. C., Shrivastava, S., Hassanali, M., Stothard, P., ... & Woolsey, J. (2006). DrugBank: a comprehensive resource for in silico drug discovery and exploration. Nucleic acids research, 34(suppl_1), D668-D672.
+
 [2]: Y. X. Wang, S. Zhang, F. C. Li, Y. Zhou, Y. Zhang, R. Y. Zhang, J. Zhu, Y. X. Ren, Y. Tan, C. Qin, Y. H. Li, X. X. Li, Y. Z. Chen* and F. Zhu*. Therapeutic Target Database 2020: enriched resource for facilitating research and early development of targeted therapeutics. Nucleic Acids Research. 48(D1): D1031-D1041 (2020). PubMed ID: 31691823
+
 [3]: Mendez, D., Gaulton, A., Bento, A. P., Chambers, J., De Veij, M., Félix, E., ... & Leach, A. R. (2019). ChEMBL: towards direct deposition of bioassay data. Nucleic acids research, 47(D1), D930-D940.
+
 [4]: Davies, M., Nowotka, M., Papadatos, G., Dedman, N., Gaulton, A., Atkinson, F., ... & Overington, J. P. (2015). ChEMBL web services: streamlining access to drug discovery data and utilities. Nucleic acids research, 43(W1), W612-W620.
+
 [5]: Kim, S., Thiessen, P. A., Cheng, T., Yu, B., & Bolton, E. E. (2018). An update on PUG-REST: RESTful interface for programmatic access to PubChem. Nucleic acids research, 46(W1), W563-W570.
+
 [6]: Kanehisa, M., & Goto, S. (2000). KEGG: kyoto encyclopedia of genes and genomes. Nucleic acids research, 28(1), 27-30.
+
 [7]: Kanehisa, M. (2019). Toward understanding the origin and evolution of cellular organisms. Protein Science, 28(11), 1947-1951.
+
 [8]: Kanehisa, M., Furumichi, M., Sato, Y., Ishiguro-Watanabe, M., & Tanabe, M. (2021). KEGG: integrating viruses and cellular organisms. Nucleic acids research, 49(D1), D545-D551.
+
 [9]: Bodenreider, O. (2004). The unified medical language system (UMLS): integrating biomedical terminology. Nucleic acids research, 32(suppl_1), D267-D270.
 
 ## Licence & Required Citation
