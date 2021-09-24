@@ -1,6 +1,6 @@
 # Mapping drug ids from Drugbank, TTD, UMLS, KEGG, ChEMBL and other databases:
 
-This project includes various transformation tools that create and enrich a TSV file, which lists thousand of known drugs and all the available ids that could be found in drug databases.
+This project includes various transformation tools that create and enrich a [TSV file](https://github.com/iit-Demokritos/drug_id_mapping/blob/main/drug-mappings.tsv), which lists thousand of known drugs and all the available ids that could be found in drug databases.
 
 In particular, we start from retrieving the drug information included in the latest Drugbank [1] (VERSION 5.1.8, RELEASED ON 2021-01-03) as well as in the latest Therapeutic Target Database [2] (VERSION 7.1.01, RELEASED ON 2019.07.14) in a file.
 We then enrich the drug fields by querying the following sources:
@@ -11,7 +11,7 @@ We then enrich the drug fields by querying the following sources:
 
 ## Mapping TSV file data format
 
-The resulting file (drug-mappings.tsv) includes a tab-separated entry for each drug, including multiple ids that could be found and crossed-checked from the aforementioned databases.
+The resulting file ([drug-mappings.tsv] (https://github.com/iit-Demokritos/drug_id_mapping/blob/main/drug-mappings.tsv)) includes a tab-separated entry for each drug, including multiple ids that could be found and crossed-checked from the aforementioned databases.
 For ids not found in none of the above sources, 'null' string is added. Multiple CUIs for a specific drug are separated with a comma separator(,).
 An example of the format of the TSV data file is as follows:
 
