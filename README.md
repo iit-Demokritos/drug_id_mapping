@@ -11,7 +11,7 @@ We then enrich the drug fields by querying the following sources:
 
 ## Mapping TSV file data format
 
-The resulting file ([drug-mappings.tsv] (https://github.com/iit-Demokritos/drug_id_mapping/blob/main/drug-mappings.tsv)) includes a tab-separated entry for each drug, including multiple ids that could be found and crossed-checked from the aforementioned databases.
+The resulting file [drug-mappings.tsv] (https://github.com/iit-Demokritos/drug_id_mapping/blob/main/drug-mappings.tsv) includes a tab-separated entry for each drug, including multiple ids that could be found and crossed-checked from the aforementioned databases.
 For ids not found in none of the above sources, 'null' string is added. Multiple CUIs for a specific drug are separated with a comma separator(,).
 An example of the format of the TSV data file is as follows:
 
