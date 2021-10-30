@@ -9,6 +9,14 @@ We then enrich the drug fields by querying the following sources:
 -  the drugs file in the FTP server of the KEGG Database [6][7][8]
 -  the UMLS Metathesaurus vocabulary Database[9], using the MetamorphoSys tool 
 
+
+## Licence & Required Citation
+For any use of the drug-mappings.tsv file in your work, **a citation to the following paper is expected:**
+*Bougiatiotis, K., Aisopos, F., Nentidis, A., Krithara, A., & Paliouras, G. (2020, August). Drug-Drug Interaction Prediction on a Biomedical Literature Knowledge Graph. In International Conference on Artificial Intelligence in Medicine (pp. 122-132). Springer, Cham.*
+
+drug_id_mapping - NCSR Demokritos module Copyright 2021 Fotis Aisopos
+The Java code and TSV file are provided **only for academic/research use and are licensed under the Apache License, Version 2.0 (the "License")**; you may not use this file except in compliance with the License. You may obtain a copy of the License at: https://www.apache.org/licenses/LICENSE-2.0 .
+
 ## Mapping TSV file data format
 
 The resulting file ([drug-mappings.tsv](https://github.com/iit-Demokritos/drug_id_mapping/blob/main/drug-mappings.tsv)) includes a tab-separated entry for each drug, including multiple ids that could be found and crossed-checked from the aforementioned databases.
@@ -60,9 +68,3 @@ and also include needed jar libraries in the CLASSPATH.
 
 [9]: Bodenreider, O. (2004). The unified medical language system (UMLS): integrating biomedical terminology. Nucleic acids research, 32(suppl_1), D267-D270.
 
-## Licence & Required Citation
-For any use of the drug-mappings.tsv file in your work, **a citation to the following paper is expected:**
-*Bougiatiotis, K., Aisopos, F., Nentidis, A., Krithara, A., & Paliouras, G. (2020, August). Drug-Drug Interaction Prediction on a Biomedical Literature Knowledge Graph. In International Conference on Artificial Intelligence in Medicine (pp. 122-132). Springer, Cham.*
-
-drug_id_mapping - NCSR Demokritos module Copyright 2021 Fotis Aisopos
-The Java code and TSV file are provided **only for academic/research use and are licensed under the Apache License, Version 2.0 (the "License")**; you may not use this file except in compliance with the License. You may obtain a copy of the License at: https://www.apache.org/licenses/LICENSE-2.0 .
