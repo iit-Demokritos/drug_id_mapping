@@ -16,8 +16,308 @@ public class CreateDrugMappings {
 
 	public static void main(String[] args) {
 		String dtiFolder = args[0];
-//		addDrugbankCuis(dtiFolder);
-		addMissingFieldsFromKEGG(dtiFolder);
+		//addDrugbankCuis(dtiFolder);
+		//addMissingFieldsFromKEGG(dtiFolder);
+		//updateTTDids(dtiFolder);
+		//correctOutdatedTTD(dtiFolder);
+		//enrichFromDGIdb(dtiFolder);
+		enrichFromSIDER(dtiFolder);
+		
+	}
+
+	
+	public static void enrichFromDGIdb (String dtiFolder) {
+		
+		try {
+			//This is the old file to update
+			HashMap<String,String> dgidbNamesChembls = new HashMap<String,String>();
+			HashMap<String,String> dgidbDBidsChembls = new HashMap<String,String>();
+			FileReader drugsMapReader0 = new FileReader(dtiFolder+"DGIdb/drugs.tsv");
+			BufferedReader drugLines0 = new BufferedReader(drugsMapReader0);
+	       	String dline0=drugLines0.readLine();// headers line
+	    	while((dline0 = drugLines0.readLine() ) != null) {
+	    		String[] line = dline0.split("\t");  
+	    		if (line.length<4)
+	    			continue;
+	    	    String source = line[3];
+	    	    if (source.equals("DrugBank")) {
+	    	    	String id = line[0];
+	    	    	String chembl = line[2];
+	    	    	if (chembl.length()==0)
+	    	    		continue;
+	    	    	chembl = chembl.substring(7);
+	    	    	dgidbDBidsChembls.put(id, chembl);
+	    	    }
+	    	    else if (source.equals("ChemblDrugs")) {
+	    	    	String name = line[1];
+	    	    	String chembl = line[0].substring(7);
+	    	    	dgidbNamesChembls.put(name, chembl);
+	    	    }
+	    	}    
+	    	drugLines0.close();
+	    	drugsMapReader0.close();
+	    	Set<String> foundNames = dgidbNamesChembls.keySet();
+	    	Set<String> foundDBids = dgidbDBidsChembls.keySet();
+	    	
+	    	
+			//This is the old file to update
+			String drugbankMappingFile = dtiFolder+"drug-mappings_updated2.tsv";
+			//create new file with correct TTD ids
+			PrintWriter writerDrugMap= new PrintWriter(dtiFolder+"drug-mappings_updated3.tsv", "UTF-8");
+			
+			int k=0;
+			
+			FileReader drugsMapReader = new FileReader(drugbankMappingFile);
+			BufferedReader drugLines2 = new BufferedReader(drugsMapReader);
+	       	String dline=drugLines2.readLine();//copy headers line
+	       	writerDrugMap.println(dline);
+	       	
+	      	
+	    	while((dline = drugLines2.readLine()) != null) {
+	    		String[] line = dline.split("\t");
+	    		String chembl = line[5];
+	    		if (chembl.equals("null")) {
+		    	    String dbid = line[0];
+		    	    String name = line[1];
+		    	    
+		    	    //System.out.println("chembl: "+chembl +"  name: "+name+"  dbid: "+dbid);
+		    	    
+		    	    if(foundNames.contains(name))  {  
+		    	    	chembl=dgidbNamesChembls.get(name);
+		    	    	k++;
+		    	    	//System.out.println("FOUND: "+chembl +" for name: "+name);
+			    	    
+		    	    }
+		    	    else if (foundDBids.contains(dbid)) {
+		    	    	chembl=dgidbDBidsChembls.get(dbid);
+		    	    	k++;
+		    	    	//System.out.println("FOUND: "+chembl +" for dbid: "+dbid);
+		    	    }
+		    	    line[5]=chembl;
+		    	    String upd_line="";
+		    	    for (String s:line) {
+		    	    	upd_line+=s+"\t";
+		    	    }	
+		    	    
+		    	    upd_line.substring(0, upd_line.length()-2);
+		    	    
+		    	    writerDrugMap.println(upd_line);
+	    		}
+	    		else
+	    			writerDrugMap.println(dline);
+	    	}	
+	    	System.out.println("Done! Added "+k+" missing chembl ids");
+			writerDrugMap.close();
+			drugsMapReader.close();
+
+		}
+	    catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public static void correctOutdatedTTD (String dtiFolder) {
+		
+		try {
+			//This is the old file to update
+			String drugbankMappingFile = dtiFolder+"drug-mappings_updated.tsv";
+			//create new file with correct TTD ids
+			PrintWriter writerDrugMap= new PrintWriter(dtiFolder+"drug-mappings_updated2.tsv", "UTF-8");
+			
+			FileReader drugsMapReader = new FileReader(drugbankMappingFile);
+			BufferedReader drugLines2 = new BufferedReader(drugsMapReader);
+	       	String dline=drugLines2.readLine();//copy headers line
+	       	writerDrugMap.println(dline);
+	       	
+	      	
+	    	while((dline = drugLines2.readLine() ) != null) {
+	    		String[] line = dline.split("\t");  
+	    	    String ttdId = line[2];
+	    	    String name = line[1];
+	    	    
+	    	    if(ttdId.contains("DAP"))  {  //outdated id
+	    	    	line[2]=lookForTTDsynonym(ttdId, name,dtiFolder);
+	            	dline="";
+	            	for (String item: line)
+	            		dline+=item+"\t";
+	            	dline=dline.substring(0, dline.length()-1);
+	    	    }
+	    	    
+	    	    writerDrugMap.println(dline);
+	    	}
+	    	
+	    	System.out.println("Done!");
+			writerDrugMap.close();
+			drugsMapReader.close();
+
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public static String lookForTTDsynonym(String old_ttdId, String name, String dtiFolder) {
+    	//This is the TTD file with drug info
+		String synonymsTTDFile=dtiFolder+"TTD/P1-04-Drug_synonyms.txt";
+    	String ttdId=old_ttdId;
+		
+		try {
+			
+			FileReader drugsSynonymsReader = new FileReader(synonymsTTDFile);
+			BufferedReader synonymLines = new BufferedReader(drugsSynonymsReader);
+			
+			for (int i=0; i<22;i++)
+				synonymLines.readLine();//skip header lines
+	       	
+			String dline;
+	    	while((dline=synonymLines.readLine() ) != null) {
+	    		if ((dline.contains("DRUGNAME\t"+name)) ||(dline.contains("SYNONYMS\t"+name))) {
+	    			System.out.println("Correct "+ttdId);
+	    	        String[] line = dline.split("\t"); 
+	            	ttdId=line[0];
+	            	break;
+	    		}
+        	}
+	    	synonymLines.close();
+        	drugsSynonymsReader.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ttdId;
+	}
+	
+	public static void updateTTDids (String dtiFolder) {
+		
+		//This is the file to update
+		String drugbankMappingFile = dtiFolder+"drug-mappings.tsv";
+    	//This is the TTD file with drug info
+		String drugFile=dtiFolder+"TTD/P1-03-TTD_crossmatching.txt";
+    	
+		
+		try {
+			
+	  		//initially save all drug information that we can find from TTD file!
+    		int lines=0;
+    		HashMap<String,DrugEntry> drug_entries = new HashMap<String,DrugEntry>();
+    		String drugId="";
+    		DrugEntry drug = new DrugEntry();
+    		FileReader drugsInfoReader = new FileReader(drugFile);
+    		BufferedReader drugLines = new BufferedReader(drugsInfoReader);
+           	String drugline;//ignore headers line
+        	while((drugline = drugLines.readLine() ) != null) {
+        		if (drugline.contains("DRUGNAME")) {
+          	        String[] line = drugline.split("\t"); 
+        	        if (line.length<3)
+        	        	continue;
+           			drug = new DrugEntry();
+           			drug.name= line[2];
+           			drug.ttd_id=line[0];
+           			drugId = line[0];
+           			drug_entries.put(drugId, drug);
+      //   	        drug_id_names.put(drug.name,drugId);
+        			
+        		}
+        		else if (drugline.contains("CASNUMBE")) {
+          	        String[] line = drugline.split("\t"); 
+        	        if (line.length<3)
+        	        	continue;
+        	        drug.cas_num = line[2].substring(4);
+        	        drug_entries.replace(drugId, drug);
+        // 	        drug_id_cas.put(drug.cas_num, drugId);
+        			
+        		}
+        		else if (drugline.contains("PUBCHCID")) {
+        	        String[] line = drugline.split("\t");
+        	        if (line.length<3)
+        	        	continue;
+        	        drug.pubchem_cid = line[2];
+         	        if (drug.pubchem_cid.contains(";"))
+         	        	drug.pubchem_cid=drug.pubchem_cid.substring(0, drug.pubchem_cid.indexOf(';')-1);
+        	        drug_entries.replace(drugId, drug);
+         //	        drug_id_pubChem.put(drug.pubchem_cid, drugId);
+        	    }
+        		else if (drugline.contains("CHEBI_ID")) {
+        	        String[] line = drugline.split("\t");
+        	        if (line.length<3)
+        	        	continue;
+        	        
+        	        if (line[2].contains(":"))
+           	        	drug.chebi_id = line[2].substring(6);
+           	        else {
+           	        	String chembl = line[2];
+           	        	chembl=chembl.replaceAll(" ", "");
+           	        	drug.chembl_id = chembl;
+           	        }	
+         	        drug_entries.replace(drugId, drug);
+         	        
+        	    }
+        	}
+        drugLines.close();
+        drugsInfoReader.close();
+		
+
+		//Enrich drug-mappings.tsv file with drugbank-related CUIs
+		PrintWriter writerDrugMap= new PrintWriter(dtiFolder+"drug-mappings_updated.tsv", "UTF-8");
+			
+	 	FileReader drugsMapReader = new FileReader(drugbankMappingFile);
+		BufferedReader drugLines2 = new BufferedReader(drugsMapReader);
+	       	String dline=drugLines2.readLine();//copy headers line
+	       	writerDrugMap.println(dline);
+	       	
+	      	
+	    	while((dline = drugLines2.readLine() ) != null) {
+	    		String[] line = dline.split("\t");  
+	    	    String ttdId = line[2];
+	    	    
+	    	    if(drug_entries.containsKey(ttdId))  {  //update remaining features....
+	    	    	DrugEntry d = drug_entries.get(ttdId);
+
+	            	if ((line[4].equals("null")) && (d.cas_num!=null)) {
+	            			System.out.println("!!!!!!!!!!!Added missing d.cas_num="+d.cas_num);
+	            			line[4]=d.cas_num;
+	            		
+	            	}	
+	            	if ((line[3].equals("null")) && (d.pubchem_cid!=null)) {
+	            			System.out.println("!!!!!!!!!!!For ttdId="+ttdId+"Added missing d.pubchem_cid="+d.pubchem_cid);
+	            			line[3]=d.pubchem_cid;
+	            		
+	            	}	
+	            	if ((line[7].equals("null")) && (d.chebi_id!=null)) {
+	            			System.out.println("!!!!!!!!!!!For ttdId="+ttdId+"Added missing d.chebi_id="+d.chebi_id);
+	            			line[7]=d.chebi_id;
+	            	
+	            	}	
+	            	dline="";
+	            	for (String item: line)
+	            		dline+=item+"\t";
+	            	dline=dline.substring(0, dline.length()-1);
+	    	    }
+	    	    else {  //ttd_id not existing in drug-mappings file, try to find other common features in ttd_drugs
+	    	    	
+	    	    	for (DrugEntry d : drug_entries.values()) {
+	    	    		if (((d.name!=null) && (dline.contains("\t"+d.name+"\t"))) || ((d.cas_num!=null) && (dline.contains("\t"+d.cas_num+"\t"))) || ((d.chebi_id!=null) && (dline.contains("\t"+d.chebi_id+"\t"))) ||((d.chembl_id!=null) && (dline.contains("\t"+d.chembl_id+"\t"))) ||((d.drugbank_id!=null) && (dline.contains(d.drugbank_id+"\t"))) ||((d.kegg_cid!=null) && (dline.contains("\t"+d.kegg_cid+"\t")))) {
+	    	    			line[2] = d.ttd_id;
+	    	    			dline="";
+	    	    			for (int i=0; i<12; i++)
+	    	    				dline+=line[i]+"\t";
+	    	    			dline.substring(0,dline.length()-2);
+	    	    			break;
+	    	    		}	
+	    	    	}	
+	    	    }
+	    	    writerDrugMap.println(dline);
+	    	}
+	    	
+	    	System.out.println("Done!");
+			writerDrugMap.close();
+			drugLines.close();
+			drugsMapReader.close();
+
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public static void addMissingFieldsFromKEGG (String dtiFolder) {
@@ -273,4 +573,103 @@ public class CreateDrugMappings {
 		}	
 		return comma_separated_cuis;
 	}
+  	
+  	public static void enrichFromSIDER(String dtiFolder) {
+		try {
+			String ddiPath = dtiFolder;
+
+			String drugmap1 = ddiPath+"drug-mappings_updated3.tsv";
+			String drugmap2 = ddiPath+"drug-mappings_latest.tsv";
+			
+			
+			BufferedReader br = new BufferedReader(new FileReader(drugmap1));
+			PrintWriter writerDrugMap= new PrintWriter(drugmap2, "UTF-8");
+
+			String line= br.readLine();
+			writerDrugMap.println(line+"\tstitch_id");
+			while ((line = br.readLine()) != null ){
+				String[] values = line.split("\t");
+				String dbid = values[0];
+				String siderid = getSIDERMapping(dbid, ddiPath);
+				if (siderid.equals("null"))
+					siderid = getSIDERMapping2(dbid, ddiPath);
+				String addition = siderid;
+				if (!line.endsWith("\t"))
+					addition="\t"+addition;
+				writerDrugMap.println(line+addition);
+			}
+			br.close();
+			writerDrugMap.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+  	}
+  	
+
+	static String getSIDERMapping(String db, String ddiPath) {
+		
+   		String id="null";
+		String line;
+		String drugMappings = ddiPath+"DrugBank-Sider_mapping.tsv";
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(drugMappings));
+	   		
+			while ((line = br.readLine()) != null ){
+				if(line.contains(db)) {
+			        String[] values = line.split("\t");
+			        id = values[3];
+			        break;
+				}    
+			}
+			br.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return id;
+
+	}
+
+
+	static String getSIDERMapping2(String db, String ddiPath) {
+		
+   		String name="null";
+		String line;
+		String drugMappings1 = ddiPath+"drug-mappings_updated3.tsv";
+		try {
+			BufferedReader br1 = new BufferedReader(new FileReader(drugMappings1));
+	   		
+			while ((line = br1.readLine()) != null ){
+				if(line.contains(db)) {
+			        String[] values = line.split("\t");
+			        name = values[1];
+			        break;
+				}    
+			}
+			br1.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+
+		String id="null";
+		String drugMappings2 = ddiPath+"drug_SIDER_names.tsv";
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(drugMappings2));
+	   		
+			while ((line = br.readLine()) != null ){
+				String[] values = line.split("\t");
+				if (values[1].equalsIgnoreCase(name)) {
+			        id = values[0];
+			        break;
+				}    
+			}
+			br.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return id;
+
+	}
+
 }
