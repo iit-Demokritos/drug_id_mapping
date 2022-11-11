@@ -1,4 +1,4 @@
-# Mapping drug ids from Drugbank, TTD, UMLS, KEGG, ChEMBL and other databases:
+# Mapping drug ids from Drugbank, STITCH, UMLS, KEGG, PubChem, ChEMBL and other databases:
 
 This project includes various transformation tools that create and enrich a [TSV file](https://github.com/iit-Demokritos/drug_id_mapping/blob/main/drug-mappings.tsv), which lists thousand of known drugs and all the available ids that could be found in drug databases.
 
@@ -8,6 +8,7 @@ We then enrich the drug fields by querying the following sources:
 -  the PUG REST API of PubChem Database [5]
 -  the drugs file in the FTP server of the KEGG Database [6][7][8]
 -  the UMLS Metathesaurus vocabulary Database[9], using the MetamorphoSys tool 
+-  the mapping files of the STITCH Database 
 
 
 ## Licence & Required Citation
@@ -24,11 +25,11 @@ For ids not found in none of the above sources, 'null' string is added. Multiple
 An example of the format of the TSV data file is as follows:
 
 ```sh
-drugbankId	name	ttd_id	pubchem_cid	cas_num	chembl_id	zinc_id	chebi_id	kegg_cid	kegg_id	bindingDB_id	UMLS_cuis
-DB01149	Nefazodone	DAP000042	4449	83366-66-9	CHEMBL623	ZINC000000538065	7494	C07256	D08257	50069447	C0068485
-DB01157	Trimetrexate	DAP000635	5583	52128-35-5	CHEMBL119	ZINC000000598852	9737	C11154	D06238	18268	C0085176
-DB01248	Docetaxel	DAP000590	148124	114977-28-5	CHEMBL92	ZINC000085537053	4672	C11231	D02165	36351	C0246415,C0771375
-DB02579	Acrylic Acid	D0E3MA	6581	79-10-7	CHEMBL1213529	ZINC000000895281	18308	C00511	null	null	null
+drugbankId	name	ttd_id	pubchem_cid	cas_num	chembl_id	zinc_id	chebi_id	kegg_cid	kegg_id	bindingDB_id	UMLS_cuis stitch_id
+DB01149	Nefazodone	DAP000042	4449	83366-66-9	CHEMBL623	ZINC000000538065	7494	C07256	D08257	50069447	C0068485  CID000004449
+DB01157	Trimetrexate	DAP000635	5583	52128-35-5	CHEMBL119	ZINC000000598852	9737	C11154	D06238	18268	C0085176  CID100005582
+DB01248	Docetaxel	DAP000590	148124	114977-28-5	CHEMBL92	ZINC000085537053	4672	C11231	D02165	36351	C0246415,C0771375 CID100003143
+DB02579	Acrylic Acid	D0E3MA	6581	79-10-7	CHEMBL1213529	ZINC000000895281	18308	C00511	null	null	null  null
 ...
 ```
 
@@ -47,6 +48,7 @@ To run the aforementioned Java project, it is obvious that we need to have acces
 - Entrez Programming Utilities (E-utilities) API (query PUG for PubChem ids and obtain a token to query for a TGT and an API key)
 - KEGG (to download the KEGG drug file)
 - UniChem API (to query for ChEMBL ids)
+- DrugBank-Sider_mapping files (to query for STITCH ids)
 and also include needed jar libraries in the CLASSPATH.
 
 ## References
